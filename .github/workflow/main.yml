@@ -1,0 +1,43 @@
+name: main
+run-name: Main branch is Deployed by ${{ github.actor }}
+on:
+  workflow_dispatch:
+
+jobs:
+  functions:
+    name: Deploy functions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.15.1
+          cache: "npm"
+
+      - name: create .firebaserc file
+        id: firebaserc
+        uses: jsdaniell/create-json@v1.2.1
+        with:
+          name: ".firebaserc"
+          json: '{"projects":{"default":"flashnotes-d3933"}}'
+          dir: "/"
+      
+      - name: create serviceAccountKey file
+        id: serviceAccountKey
+        uses: jsdaniell/create-json@v1.2.1
+        with:
+          name: "serviceAccountKey.json"
+          json: ${{ secrets.FB_DEVELOPMENT }}
+          dir: "/config/"
+          
+      - name: Install Dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Deploy
+        uses: w9jds/firebase-action@master
+        with:
+          args: deploy --only functions
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
