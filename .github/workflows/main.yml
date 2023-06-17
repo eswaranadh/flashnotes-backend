@@ -27,6 +27,10 @@ jobs:
       - name: create serviceAccountKey file
         id: serviceAccountKey
         uses: jsdaniell/create-json@v1.2.1
+        run: |
+          if [ ! -d "folder_name" ]; then
+            mkdir folder_name
+          fi
         with:
           name: "serviceAccountKey.json"
           json: ${{ secrets.FB_DEVELOPMENT }}
