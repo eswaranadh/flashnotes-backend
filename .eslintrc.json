@@ -1,0 +1,15 @@
+{
+    "env": {
+        "browser": true,
+        "node": true,
+        "es6": true
+    },
+    "extends": [
+        "eslint:recommended"
+    ],
+    "rules": {
+        "no-console": "warn", // Example custom rule to warn against using console.log,
+        "no-unused-vars": "warn",
+        "semi": "off"
+    }
+}
