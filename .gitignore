@@ -3,3 +3,5 @@ node_modules/
 serviceAccountKey.json
 
 .firebaserc
+
+firebase-debug.log

@@ -103,8 +103,8 @@ const validateDeck = [
   },
 ];
 
-// Validate session creation/update request
-const validateSession = [
+// Validate studySet creation/update request
+const validateStudySet = [
   body('title').notEmpty().withMessage('Title is required'),
   body('decks')
     .isArray().withMessage('Decks must be an array with at least one element')
@@ -125,6 +125,6 @@ module.exports = {
   validateNote,
   validateFlashcard,
   validateDeck,
-  validateSession,
+  validateStudySet,
   validateUpdateFlashcard
 };
