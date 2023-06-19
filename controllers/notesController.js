@@ -1,4 +1,5 @@
 const { db } = require("../utils/admin");
+const Constants = require("../utils/constants");
 const { getRandomColor } = require("../utils/helpers");
 
 // Create a new note
@@ -11,7 +12,7 @@ exports.createNote = async (req, res) => {
       userId: req.user.uid,
       color: getRandomColor()
     };
-    const doc = db.collection("notes").doc()
+    const doc = db.collection(Constants.NOTES).doc()
     await doc.set({ ...noteData, id: doc.id })
     const resNote = noteData;
     resNote.noteId = doc.id;
@@ -26,7 +27,7 @@ exports.createNote = async (req, res) => {
 exports.getAllNotes = async (req, res) => {
   try {
     const snapshot = await db
-      .collection("notes")
+      .collection(Constants.NOTES)
       .where("userId", "==", req.user.uid)
       .orderBy("createdAt", "desc")
       .get();
@@ -50,7 +51,7 @@ exports.getAllNotes = async (req, res) => {
 // Get a single note by noteId
 exports.getNoteById = async (req, res) => {
   try {
-    const doc = await db.doc(`/notes/${req.params.noteId}`).get();
+    const doc = await db.doc(`/${Constants.NOTES}/${req.params.noteId}`).get();
     if (!doc.exists) {
       return res.status(404).json({ error: "Note not found" });
     }
@@ -73,7 +74,7 @@ exports.updateNote = async (req, res) => {
       title: req.body.title,
       body: req.body.body,
     };
-    const doc = await db.doc(`/notes/${req.params.noteId}`).get();
+    const doc = await db.doc(`/${Constants.NOTES}/${req.params.noteId}`).get();
     if (!doc.exists) {
       return res.status(404).json({ error: "Note not found" });
     }
@@ -93,7 +94,7 @@ exports.updateNote = async (req, res) => {
 // Delete a note
 exports.deleteNote = async (req, res) => {
   try {
-    const doc = await db.doc(`/notes/${req.params.noteId}`).get();
+    const doc = await db.doc(`/${Constants.NOTES}/${req.params.noteId}`).get();
     if (!doc.exists) {
       return res.status(404).json({ error: "Note not found" });
     }

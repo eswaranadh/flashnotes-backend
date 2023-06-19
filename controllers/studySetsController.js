@@ -1,4 +1,5 @@
 const { db } = require("../utils/admin");
+const Constants = require("../utils/constants");
 
 // Create a new studySet
 exports.createStudySet = async (req, res) => {
@@ -6,7 +7,7 @@ exports.createStudySet = async (req, res) => {
         let cardsFromDecks = [];
         const decks = req.body.decks;
         const promises = decks.map(async (deckId) => {
-            const flashCardsThisDeck = (await db.collection("flashCards").where("deckId", "==", deckId).get()).docs.map(doc => doc.data()).map(item => item.id);
+            const flashCardsThisDeck = (await db.collection(Constants.FLASHCARDS).where("deckId", "==", deckId).get()).docs.map(doc => doc.data()).map(item => item.id);
             cardsFromDecks = [...cardsFromDecks, ...flashCardsThisDeck];
         });
         await Promise.all(promises);
@@ -20,7 +21,7 @@ exports.createStudySet = async (req, res) => {
             box2: [],
             box3: []
         };
-        const doc = db.collection("studySets").doc()
+        const doc = db.collection(Constants.STUDYSETS).doc()
         await doc.set({ ...studySetData, id: doc.id })
         const resStudySet = studySetData;
         resStudySet.studySetId = doc.id;
@@ -35,7 +36,7 @@ exports.createStudySet = async (req, res) => {
 exports.getAllStudySets = async (req, res) => {
     try {
         const snapshot = await db
-            .collection("studySets")
+            .collection(Constants.STUDYSETS)
             .where("userId", "==", req.user.uid)
             .orderBy("createdAt", "desc")
             .get();
@@ -62,7 +63,7 @@ exports.getAllStudySets = async (req, res) => {
 // Get a single studySet by studySetId
 exports.getStudySetById = async (req, res) => {
     try {
-        const doc = await db.doc(`/studySets/${req.params.studySetId}`).get();
+        const doc = await db.doc(`/${Constants.STUDYSETS}/${req.params.studySetId}`).get();
         if (!doc.exists) {
             return res.status(404).json({ error: "StudySet not found" });
         }
@@ -81,7 +82,7 @@ exports.getStudySetById = async (req, res) => {
 // Update a studySet
 exports.updateStudySet = async (req, res) => {
     try {
-        const doc = await db.doc(`/studySets/${req.params.studySetId}`).get();
+        const doc = await db.doc(`/${Constants.STUDYSETS}/${req.params.studySetId}`).get();
         if (!doc.exists) {
             return res.status(404).json({ error: "StudySet not found" });
         }
@@ -99,7 +100,7 @@ exports.updateStudySet = async (req, res) => {
 // Delete a studySet
 exports.deleteStudySet = async (req, res) => {
     try {
-        const doc = await db.doc(`/studySets/${req.params.studySetId}`).get();
+        const doc = await db.doc(`/${Constants.STUDYSETS}/${req.params.studySetId}`).get();
         if (!doc.exists) {
             return res.status(404).json({ error: "StudySet not found" });
         }
@@ -117,7 +118,7 @@ exports.deleteStudySet = async (req, res) => {
 // move cardId from box1 to box2
 exports.moveCardFromBox1ToBox2 = async (req, res) => {
     try {
-        const doc = await db.doc(`/studySets/${req.params.studySetId}`).get();
+        const doc = await db.doc(`/${Constants.STUDYSETS}/${req.params.studySetId}`).get();
         if (!doc.exists) {
             return res.status(404).json({ error: "StudySet not found" });
         }
@@ -143,7 +144,7 @@ exports.moveCardFromBox1ToBox2 = async (req, res) => {
 // move cardId from box2 to box3
 exports.moveCardFromBox2ToBox3 = async (req, res) => {
     try {
-        const doc = await db.doc(`/studySets/${req.params.studySetId}`).get();
+        const doc = await db.doc(`/${Constants.STUDYSETS}/${req.params.studySetId}`).get();
         if (!doc.exists) {
             return res.status(404).json({ error: "StudySet not found" });
         }
@@ -169,7 +170,7 @@ exports.moveCardFromBox2ToBox3 = async (req, res) => {
 // move cardId from box2 to box1
 exports.moveCardFromBox2ToBox1 = async (req, res) => {
     try {
-        const doc = await db.doc(`/studySets/${req.params.studySetId}`).get();
+        const doc = await db.doc(`/${Constants.STUDYSETS}/${req.params.studySetId}`).get();
         if (!doc.exists) {
             return res.status(404).json({ error: "StudySet not found" });
         }
@@ -195,7 +196,7 @@ exports.moveCardFromBox2ToBox1 = async (req, res) => {
 // move cardId from box3 to box1
 exports.moveCardFromBox3ToBox1 = async (req, res) => {
     try {
-        const doc = await db.doc(`/studySets/${req.params.studySetId}`).get();
+        const doc = await db.doc(`/${Constants.STUDYSETS}/${req.params.studySetId}`).get();
         if (!doc.exists) {
             return res.status(404).json({ error: "StudySet not found" });
         }
@@ -221,7 +222,7 @@ exports.moveCardFromBox3ToBox1 = async (req, res) => {
 // add deckId to studySet
 exports.addDeckToStudySet = async (req, res) => {
     try {
-        const doc = await db.doc(`/studySets/${req.params.studySetId}`).get();
+        const doc = await db.doc(`/${Constants.STUDYSETS}/${req.params.studySetId}`).get();
         if (!doc.exists) {
             return res.status(404).json({ error: "StudySet not found" });
         }
@@ -236,7 +237,7 @@ exports.addDeckToStudySet = async (req, res) => {
         }
         studySetData.decks.push({ id: deckId });
         let cardsFromDeck = [];
-        const flashCardsThisDeck = (await db.collection("flashCards").where("deckId", "==", deckId).get()).docs.map(doc => doc.data()).map(item => item.id);
+        const flashCardsThisDeck = (await db.collection(Constants.FLASHCARDS).where("deckId", "==", deckId).get()).docs.map(doc => doc.data()).map(item => item.id);
         cardsFromDeck = [...cardsFromDeck, ...flashCardsThisDeck];
         const shuffledCards = cardsFromDeck.sort(() => Math.random() - 0.5);
         studySetData.box1 = [...studySetData.box1, ...shuffledCards];
@@ -251,7 +252,7 @@ exports.addDeckToStudySet = async (req, res) => {
 // remove deckId from studySet
 exports.removeDeckFromStudySet = async (req, res) => {
     try {
-        const doc = await db.doc(`/studySets/${req.params.studySetId}`).get();
+        const doc = await db.doc(`/${Constants.STUDYSETS}/${req.params.studySetId}`).get();
         if (!doc.exists) {
             return res.status(404).json({ error: "StudySet not found" });
         }
@@ -265,7 +266,7 @@ exports.removeDeckFromStudySet = async (req, res) => {
             return res.status(400).json({ error: "Deck not found" });
         }
         studySetData.decks = studySetData.decks.filter(deck => deck.id !== deckId);
-        const flashCardsThisDeck = (await db.collection("flashCards").where("deckId", "==", deckId).get()).docs.map(doc => doc.data());
+        const flashCardsThisDeck = (await db.collection(Constants.FLASHCARDS).where("deckId", "==", deckId).get()).docs.map(doc => doc.data());
         studySetData.box1 = studySetData.box1.filter(card => !flashCardsThisDeck.includes(card.id));
         studySetData.box2 = studySetData.box2.filter(card => !flashCardsThisDeck.includes(card.id));
         studySetData.box3 = studySetData.box3.filter(card => !flashCardsThisDeck.includes(card.id));

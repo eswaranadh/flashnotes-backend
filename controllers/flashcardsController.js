@@ -1,5 +1,6 @@
 const { db } = require('../utils/admin');
 const { validationResult } = require('express-validator');
+const Constants = require('../utils/constants');
 
 // Create a new flashcard
 exports.createFlashcard = async (req, res) => {
@@ -13,7 +14,7 @@ exports.createFlashcard = async (req, res) => {
   };
 
   try {
-    const ref = db.collection("flashcards").doc()
+    const ref = db.collection(Constants.FLASHCARDS).doc()
     await ref.set({
       ...flashcardData,
       id: ref.id
@@ -32,12 +33,12 @@ exports.getAllFlashcards = async (req, res) => {
   try {
     let snapshot
     if (deckId)
-      snapshot = await db.collection('flashcards')
+      snapshot = await db.collection(Constants.FLASHCARDS)
         .where('createdBy', '==', uid)
         .where('deckId', '==', deckId)
         .get();
     else
-      snapshot = await db.collection('flashcards').where('createdBy', '==', uid).get();
+      snapshot = await db.collection(Constants.FLASHCARDS).where('createdBy', '==', uid).get();
     const flashcards = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     res.json(flashcards);
   } catch (err) {
@@ -51,7 +52,7 @@ exports.getFlashcardById = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const flashcard = await db.collection('flashcards').doc(id).get();
+    const flashcard = await db.collection(Constants.FLASHCARDS).doc(id).get();
     if (!flashcard.exists) {
       return res.status(404).json({ error: 'Flashcard not found' });
     }
@@ -73,14 +74,14 @@ exports.updateFlashcard = async (req, res) => {
   };
 
   try {
-    const flashcard = await db.collection('flashcards').doc(id).get();
+    const flashcard = await db.collection(Constants.FLASHCARDS).doc(id).get();
     if (!flashcard.exists) {
       return res.status(404).json({ error: 'Flashcard not found' });
     }
     if (flashcard.data().createdBy !== req.user.uid) {
       return res.status(403).json({ error: 'Unauthorized' });
     }
-    await db.collection('flashcards').doc(id).update(flashcardData);
+    await db.collection(Constants.FLASHCARDS).doc(id).update(flashcardData);
     res.json({ message: 'Flashcard updated successfully' });
   } catch (err) {
     console.error(err);
@@ -93,14 +94,14 @@ exports.deleteFlashcard = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const flashcard = await db.collection('flashcards').doc(id).get();
+    const flashcard = await db.collection(Constants.FLASHCARDS).doc(id).get();
     if (!flashcard.exists) {
       return res.status(404).json({ error: 'Flashcard not found' });
     }
     if (flashcard.data().createdBy !== req.user.uid) {
       return res.status(403).json({ error: 'Unauthorized' });
     }
-    await db.collection('flashcards').doc(id).delete();
+    await db.collection(Constants.FLASHCARDS).doc(id).delete();
     res.json({ message: 'Flashcard deleted' });
   } catch (err) {
     console.error(err);

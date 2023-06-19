@@ -24,7 +24,7 @@ app.use('/auth', authRoutes);
 app.use('/notes', notesRoutes);
 app.use('/flashcards', flashcardsRoutes);
 app.use('/decks', deckRoutes);
-app.use('/studySets', studySetsRoutes);
+app.use('/studysets', studySetsRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

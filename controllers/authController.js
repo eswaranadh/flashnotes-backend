@@ -1,4 +1,5 @@
 const { admin } = require('../utils/admin');
+const Constants = require('../utils/constants');
 
 // Sign up a new user
 exports.signup = async (req, res) => {
@@ -11,7 +12,7 @@ exports.signup = async (req, res) => {
 
   try {
     // Create new user
-    const docRef = admin.firestore().collection('users').doc(newUser.handle);
+    const docRef = admin.firestore().collection(Constants.USERS).doc(newUser.handle);
     const doc = await docRef.get();
     if (doc.exists) {
       return res.status(400).json({ handle: 'This handle is already taken' });
@@ -65,7 +66,7 @@ exports.login = async (req, res) => {
 // Get user information
 exports.getUser = async (req, res) => {
   try {
-    const docRef = admin.firestore().collection('users').doc(req.user.handle);
+    const docRef = admin.firestore().collection(Constants.USERS).doc(req.user.handle);
     const doc = await docRef.get();
     if (!doc.exists) {
       return res.status(404).json({ error: 'User not found' });

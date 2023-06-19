@@ -1,5 +1,6 @@
 const { db } = require('../utils/admin');
 const { validationResult } = require('express-validator');
+const Constants = require('../utils/constants');
 
 // Create a new deck
 exports.createDeck = async (req, res) => {
@@ -12,7 +13,7 @@ exports.createDeck = async (req, res) => {
     };
 
     try {
-        const ref = db.collection("decks").doc()
+        const ref = db.collection(Constants.DECKS).doc()
         await ref.set({
             ...deckData,
             id: ref.id
@@ -29,7 +30,7 @@ exports.getAllDecks = async (req, res) => {
     const { uid } = req.user;
 
     try {
-        const snapshot = await db.collection('decks').where('createdBy', '==', uid).get();
+        const snapshot = await db.collection(Constants.DECKS).where('createdBy', '==', uid).get();
         const decks = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
         res.json(decks);
     } catch (err) {
@@ -43,7 +44,7 @@ exports.getDeckById = async (req, res) => {
     const { id } = req.params;
 
     try {
-        const deck = await db.collection('decks').doc(id).get();
+        const deck = await db.collection(Constants.DECKS).doc(id).get();
         if (!deck.exists) {
             return res.status(404).json({ error: 'Deck not found' });
         }
@@ -65,14 +66,14 @@ exports.updateDeck = async (req, res) => {
     };
 
     try {
-        const deck = await db.collection('decks').doc(id).get();
+        const deck = await db.collection(Constants.DECKS).doc(id).get();
         if (!deck.exists) {
             return res.status(404).json({ error: 'Deck not found' });
         }
         if (deck.data().createdBy !== req.user.uid) {
             return res.status(403).json({ error: 'Unauthorized' });
         }
-        await db.collection('decks').doc(id).update(deckData);
+        await db.collection(Constants.DECKS).doc(id).update(deckData);
         res.json({ message: 'Deck updated successfully' });
     } catch (err) {
         console.error(err);
@@ -85,14 +86,14 @@ exports.deleteDeck = async (req, res) => {
     const { id } = req.params;
 
     try {
-        const deck = await db.collection('decks').doc(id).get();
+        const deck = await db.collection(Constants.DECKS).doc(id).get();
         if (!deck.exists) {
             return res.status(404).json({ error: 'Deck not found' });
         }
         if (deck.data().createdBy !== req.user.uid) {
             return res.status(403).json({ error: 'Unauthorized' });
         }
-        await db.collection('decks').doc(id).delete();
+        await db.collection(Constants.DECKS).doc(id).delete();
         res.json({ message: 'Deck deleted' });
     } catch (err) {
         console.error(err);

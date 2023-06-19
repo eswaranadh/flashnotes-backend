@@ -1,4 +1,5 @@
 const { db } = require("../utils/admin");
+const Constants = require("../utils/constants");
 
 // add cards to box
 exports.initializeAllBoxes = function (studySetId) {
@@ -6,6 +7,6 @@ exports.initializeAllBoxes = function (studySetId) {
     // box 2 will be empty
     // box 3 will be empty
 
-    const boxesRef = db.collection("boxes").doc(studySetId);
+    const boxesRef = db.collection(Constants.BOXES).doc(studySetId);
 
 }
