@@ -11,6 +11,9 @@ exports.createFlashcard = async (req, res) => {
     deckId,
     createdAt: new Date().toISOString(),
     createdBy: req.user.uid,
+    promoteCount: 0,
+    demoteCount: 0,
+    totalTimeSpent: 0,
   };
 
   try {
