@@ -13,7 +13,7 @@ exports.createFlashcard = async (req, res) => {
     createdBy: req.user.uid,
     promoteCount: 0,
     demoteCount: 0,
-    totalTimeSpent: 0,
+    timeSpentOnCard: 0,
   };
 
   try {

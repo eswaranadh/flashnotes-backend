@@ -1,4 +1,4 @@
-const { db } = require("../utils/admin");
+const { db, admin } = require("../utils/admin");
 const Constants = require("../utils/constants");
 
 // add cards to box
@@ -98,6 +98,7 @@ exports.removeDeckCardsFromAllBoxes = async function (studySetId, deckId) {
 exports.promoteCard = async (req, res) => {
     try {
         const { sourceBox, cardId } = req.query;
+        const { timeSpentOnCard } = req.body;
         const doc = await db.doc(`/${Constants.STUDYSETS}/${req.params.studySetId}`).get();
         if (!doc.exists) {
             return res.status(404).json({ error: "StudySet not found" });
@@ -158,6 +159,16 @@ exports.promoteCard = async (req, res) => {
             return res.status(400).json({ error: "Invalid sourceBox" });
         }
 
+
+        // increase promoteCount
+        const cardRef = db.doc(`/${Constants.FLASHCARDS}/${cardId}`);
+
+        const FieldValue = admin.firestore.FieldValue;
+        await cardRef.update({
+            promoteCount: FieldValue.increment(1),
+            timeSpentOnCard: FieldValue.increment(timeSpentOnCard)
+        });
+
         res.json({ message: "Card promoted successfully" });
     }
     catch (err) {
@@ -169,6 +180,7 @@ exports.promoteCard = async (req, res) => {
 exports.demoteCard = async (req, res) => {
     try {
         const { sourceBox, cardId } = req.query;
+        const { timeSpentOnCard } = req.body;
         const doc = await db.doc(`/${Constants.STUDYSETS}/${req.params.studySetId}`).get();
         if (!doc.exists) {
             return res.status(404).json({ error: "StudySet not found" });
@@ -229,6 +241,16 @@ exports.demoteCard = async (req, res) => {
             // invalid sourceBox
             return res.status(400).json({ error: "Invalid sourceBox" });
         }
+
+        // increase demoteCount
+        const cardRef = db.doc(`/${Constants.FLASHCARDS}/${cardId}`);
+
+        console.log("timeSpentOnCard", timeSpentOnCard);
+        const FieldValue = admin.firestore.FieldValue;
+        await cardRef.update({
+            demoteCount: FieldValue.increment(1),
+            timeSpentOnCard: FieldValue.increment(timeSpentOnCard)
+        });
 
         res.json({ message: "Card demoted successfully" });
     }

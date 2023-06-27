@@ -20,4 +20,7 @@ router.put('/:noteId', [auth, validateNote], notesController.updateNote);
 // Delete note
 router.delete('/:noteId', auth, notesController.deleteNote);
 
+// Generate flashcards
+router.post('/:noteId/generate-flashcards', auth, notesController.generateFlashcards);
+
 module.exports = router;

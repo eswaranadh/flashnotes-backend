@@ -56,8 +56,17 @@ exports.getStudySetById = async (req, res) => {
         if (doc?.data()?.userId !== req.user.uid) {
             return res.status(403).json({ error: "Unauthorized" });
         }
+
+        // count of cards in each box
+        const totalCardsInBox1 = (await db.doc(`/${Constants.STUDYSETS}/${req.params.studySetId}/${Constants.BOXES}/${Constants.BOX1}`).get()).data();
+        const totalCardsInBox2 = (await db.doc(`/${Constants.STUDYSETS}/${req.params.studySetId}/${Constants.BOXES}/${Constants.BOX2}`).get()).data();
+        const totalCardsInBox3 = (await db.doc(`/${Constants.STUDYSETS}/${req.params.studySetId}/${Constants.BOXES}/${Constants.BOX3}`).get()).data();
+
         const studySetData = doc.data() ?? {};
         studySetData.studySetId = doc.id;
+        studySetData.totalCardsInBox1 = totalCardsInBox1?.cards?.length ?? 0;
+        studySetData.totalCardsInBox2 = totalCardsInBox2?.cards?.length ?? 0;
+        studySetData.totalCardsInBox3 = totalCardsInBox3?.cards?.length ?? 0;
         res.json(studySetData);
     } catch (err) {
         console.error(err);

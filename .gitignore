@@ -5,3 +5,7 @@ serviceAccountKey.json
 .firebaserc
 
 firebase-debug.log
+
+backendconfig.json
+
+ui-debug.log

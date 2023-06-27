@@ -1,3 +1,4 @@
+const AI = require("../services/ai");
 const { db } = require("../utils/admin");
 const Constants = require("../utils/constants");
 const { getRandomColor } = require("../utils/helpers");
@@ -108,3 +109,57 @@ exports.deleteNote = async (req, res) => {
     res.status(500).json({ error: err.code });
   }
 };
+
+// generate flashcards from a note
+exports.generateFlashcards = async (req, res) => {
+  try {
+    const noteData = (await db.doc(`/${Constants.NOTES}/${req.params.noteId}`).get()).data();
+    if (!noteData) {
+      return res.status(404).json({ error: "Note not found" });
+    }
+    if (noteData.userId !== req.user.uid) {
+      return res.status(403).json({ error: "Unauthorized" });
+    }
+
+    const generatedFlashcards = await AI.generateFlashcardsFromNotes(noteData.body)
+
+    const newDeck = {
+      title: noteData.title,
+      description: 'Flash cards generated from note',
+      createdAt: new Date().toISOString(),
+      createdBy: req.user.uid,
+    }
+    if (generatedFlashcards.length === 0) {
+      console.log("No flashcards generated");
+      return res.status(500).json({ error: "No flashcards generated" });
+    }
+
+    const deckRef = db.collection(Constants.DECKS).doc()
+    await deckRef.set({ ...newDeck, id: deckRef.id })
+
+
+    // insert into db
+    generatedFlashcards.forEach(async (flashcard) => {
+      const doc = db.collection(Constants.FLASHCARDS).doc()
+      const front = flashcard.front
+      const back = flashcard.back
+      await doc.set({
+        front: front,
+        back: back,
+        deckId: deckRef.id,
+        id: doc.id,
+        createdAt: new Date().toISOString(),
+        createdBy: req.user.uid,
+        promoteCount: 0,
+        demoteCount: 0,
+        timeSpentOnCard: 0,
+      })
+    })
+
+    res.json({ message: "Flashcards generated successfully" });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.code });
+  }
+}
