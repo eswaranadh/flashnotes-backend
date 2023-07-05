@@ -1,7 +1,7 @@
 const express = require('express');
 const { auth } = require('../utils/auth');
 const { validateSignUpData, validateLoginData } = require('../utils/validators');
-const { signup, login } = require('../controllers/authController');
+const { signup, login, forgotPassword } = require('../controllers/authController');
 
 const router = express.Router();
 
@@ -19,5 +19,8 @@ router.get('/user', auth, (req, res) => {
     handle: req.user.handle,
   });
 });
+
+// forgot password
+router.post('/forgot-password', forgotPassword)
 
 module.exports = router;

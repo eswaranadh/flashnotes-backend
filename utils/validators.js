@@ -1,17 +1,11 @@
 const { body, param, validationResult } = require('express-validator');
 
 const validateSignUpData = [
+  body('name').notEmpty().withMessage('Name is required'),
   body('email').isEmail().withMessage('Must be a valid email address'),
   body('password')
     .notEmpty().withMessage('Password cannot be empty')
     .isLength({ min: 6 }).withMessage('Password must have at least 6 characters'),
-  body('confirmPassword').custom((value, { req }) => {
-    if (value !== req.body.password) {
-      throw new Error('Passwords must match');
-    }
-    return true;
-  }),
-  body('handle').notEmpty().withMessage('Handle cannot be empty'),
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {

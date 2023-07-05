@@ -13,6 +13,7 @@
   },
   "main": "index.js",
   "dependencies": {
+    "@sendgrid/mail": "^7.7.0",
     "cheerio": "^1.0.0-rc.12",
     "express-validator": "^7.0.1",
     "firebase-admin": "^10.3.0",

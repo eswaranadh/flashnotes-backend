@@ -1,31 +1,60 @@
+const Email = require('../services/email');
 const { admin } = require('../utils/admin');
 const Constants = require('../utils/constants');
+const { defaultUserPreferences } = require('../utils/helpers');
 
 // Sign up a new user
 exports.signup = async (req, res) => {
   const newUser = {
     email: req.body.email,
     password: req.body.password,
-    confirmPassword: req.body.confirmPassword,
-    handle: req.body.handle,
   };
 
   try {
-    // Create new user
-    const docRef = admin.firestore().collection(Constants.USERS).doc(newUser.handle);
-    const doc = await docRef.get();
-    if (doc.exists) {
-      return res.status(400).json({ handle: 'This handle is already taken' });
+
+    try {
+      // check already existing user
+      const authUser = await admin.auth().getUserByEmail(newUser.email)
+      if (authUser) {
+        return res.status(400).json({ email: 'Email is already in use' });
+      }
+    } catch (error) {
+      if (error.code !== 'auth/user-not-found') {
+        console.error(error);
+        return res.status(500).json({ error: error.code });
+      }
     }
+
+    // Create new user
+
     const userRecord = await admin.auth().createUser({
       email: newUser.email,
       password: newUser.password,
     });
+
+    const docRef = admin.firestore().collection(Constants.USERS).doc(userRecord.uid);
+
+    // create default preferences
+    const defaultPreferences = defaultUserPreferences()
+    await docRef.collection(Constants.PREFERENCES).doc(Constants.STUDY_PREFERENCES).set(defaultPreferences.studyPreferences);
+    await docRef.collection(Constants.PREFERENCES).doc(Constants.NOTIFICATION_PREFERENCES).set(defaultPreferences.notificationPreferences);
+
     const user = {
-      handle: newUser.handle,
       email: newUser.email,
+      phone: '',
+      name: '',
+      address: {
+        line1: '',
+        line2: '',
+        country: '',
+        city: '',
+        state: '',
+        zip: ''
+      },
+      about: '',
       createdAt: new Date().toISOString(),
       userId: userRecord.uid,
+      id: userRecord.uid,
     };
     await docRef.set(user);
 
@@ -78,3 +107,23 @@ exports.getUser = async (req, res) => {
     return res.status(500).json({ error: error.code });
   }
 };
+
+
+// forgot password
+exports.forgotPassword = async (req, res) => {
+  const email = req.body.email;
+
+  try {
+    const resetLink = await admin.auth().generatePasswordResetLink(email);
+    await Email.send({
+      to: [email],
+      subject: 'Reset Password',
+      text: `Please click on the link to reset your password: ${resetLink}`
+    })
+    return res.status(200).json({ message: 'Password reset link sent to your email' });
+  }
+  catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: error.code });
+  }
+}

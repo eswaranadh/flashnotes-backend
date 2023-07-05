@@ -9,6 +9,7 @@ const flashcardsRoutes = require('./routes/flashcardsRoutes');
 const deckRoutes = require('./routes/deckRoutes');
 const studySetsRoutes = require('./routes/studySetsRoutes');
 const boxRoutes = require('./routes/boxRoutes');
+const accountRoutes = require('./routes/accountRoutes');
 
 const app = express();
 
@@ -27,6 +28,7 @@ app.use('/flashcards', flashcardsRoutes);
 app.use('/decks', deckRoutes);
 app.use('/studysets', studySetsRoutes);
 app.use('/studysets', boxRoutes);
+app.use('/account', accountRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
