@@ -9,7 +9,7 @@ function getRandomColor() {
 
 function defaultUserPreferences() {
     const studyPreferences = {
-        studyMode: 'flashcards',
+        studyMode: 'random',
     }
 
     const notificationPreferences = {

@@ -36,8 +36,14 @@ exports.signup = async (req, res) => {
 
     // create default preferences
     const defaultPreferences = defaultUserPreferences()
-    await docRef.collection(Constants.PREFERENCES).doc(Constants.STUDY_PREFERENCES).set(defaultPreferences.studyPreferences);
-    await docRef.collection(Constants.PREFERENCES).doc(Constants.NOTIFICATION_PREFERENCES).set(defaultPreferences.notificationPreferences);
+    await docRef.collection(Constants.PREFERENCES).doc(Constants.STUDY_PREFERENCES).set({
+      ...defaultPreferences.studyPreferences,
+      userId: userRecord.uid
+    });
+    await docRef.collection(Constants.PREFERENCES).doc(Constants.NOTIFICATION_PREFERENCES).set({
+      ...defaultPreferences.notificationPreferences,
+      userId: userRecord.uid
+    });
 
     const user = {
       email: newUser.email,
