@@ -18,10 +18,10 @@ exports.createDeck = async (req, res) => {
             ...deckData,
             id: ref.id
         });
-        res.status(201).json({ id: ref.id, ...deckData });
+        res.status(201).json({ message: 'Deck created successfully' });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: 'Something went wrong' });
+        res.status(500).json({ message: 'Failed to create deck', error: err.code });
     }
 };
 
@@ -35,7 +35,7 @@ exports.getAllDecks = async (req, res) => {
         res.json(decks);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: 'Something went wrong' });
+        res.status(500).json({ message: 'Failed to get decks', error: err.code });
     }
 };
 
@@ -51,7 +51,7 @@ exports.getDeckById = async (req, res) => {
         res.json({ id: deck.id, ...deck.data() });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: 'Something went wrong' });
+        res.status(500).json({ message: 'Failed to get deck', error: err.code });
     }
 };
 
@@ -68,16 +68,16 @@ exports.updateDeck = async (req, res) => {
     try {
         const deck = await db.collection(Constants.DECKS).doc(id).get();
         if (!deck.exists) {
-            return res.status(404).json({ error: 'Deck not found' });
+            return res.status(404).json({ message: 'Deck not found' });
         }
         if (deck.data().createdBy !== req.user.uid) {
-            return res.status(403).json({ error: 'Unauthorized' });
+            return res.status(403).json({ message: 'Unauthorized' });
         }
         await db.collection(Constants.DECKS).doc(id).update(deckData);
         res.json({ message: 'Deck updated successfully' });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: 'Something went wrong' });
+        res.status(500).json({ message: 'Failed to update deck', error: err.code });
     }
 };
 
@@ -88,15 +88,15 @@ exports.deleteDeck = async (req, res) => {
     try {
         const deck = await db.collection(Constants.DECKS).doc(id).get();
         if (!deck.exists) {
-            return res.status(404).json({ error: 'Deck not found' });
+            return res.status(404).json({ message: 'Deck not found' });
         }
         if (deck.data().createdBy !== req.user.uid) {
-            return res.status(403).json({ error: 'Unauthorized' });
+            return res.status(403).json({ message: 'Unauthorized' });
         }
         await db.collection(Constants.DECKS).doc(id).delete();
         res.json({ message: 'Deck deleted' });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: 'Something went wrong' });
+        res.status(500).json({ message: 'Failed to delete deck', error: err.code });
     }
 };

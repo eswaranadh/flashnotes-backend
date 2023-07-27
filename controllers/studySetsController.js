@@ -16,10 +16,10 @@ exports.createStudySet = async (req, res) => {
         const resStudySet = studySetData;
         resStudySet.studySetId = doc.id;
         initializeAllBoxes(doc.id, studySetData.decks)
-        res.json(resStudySet);
+        res.json({ message: "Study set created successfully" });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: err.code });
+        res.status(500).json({ error: err.code, message: "Failed to create study set" });
     }
 }
 
@@ -42,7 +42,7 @@ exports.getAllStudySets = async (req, res) => {
         res.json(studySets);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: err.code });
+        res.status(500).json({ error: err.code, message: "Failed to get study sets" });
     }
 }
 
@@ -51,7 +51,7 @@ exports.getStudySetById = async (req, res) => {
     try {
         const doc = await db.doc(`/${Constants.STUDYSETS}/${req.params.studySetId}`).get();
         if (!doc.exists) {
-            return res.status(404).json({ error: "StudySet not found" });
+            return res.status(404).json({ error: "Study set not found" });
         }
         if (doc?.data()?.userId !== req.user.uid) {
             return res.status(403).json({ error: "Unauthorized" });
@@ -70,7 +70,7 @@ exports.getStudySetById = async (req, res) => {
         res.json(studySetData);
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: err.code });
+        res.status(500).json({ error: err.code, message: "Failed to get study set" });
     }
 }
 
@@ -79,7 +79,7 @@ exports.updateStudySet = async (req, res) => {
     try {
         const doc = await db.doc(`/${Constants.STUDYSETS}/${req.params.studySetId}`).get();
         if (!doc.exists) {
-            return res.status(404).json({ error: "StudySet not found" });
+            return res.status(404).json({ error: "Study set not found" });
         }
         if (doc?.data()?.userId !== req.user.uid) {
             return res.status(403).json({ error: "Unauthorized" });
@@ -91,10 +91,10 @@ exports.updateStudySet = async (req, res) => {
             }
         });
         await doc.ref.update(req.body);
-        res.json({ message: "StudySet updated successfully" });
+        res.json({ message: "Study set updated successfully" });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: err.code });
+        res.status(500).json({ error: err.code, message: "Failed to update study set" });
     }
 }
 
@@ -103,16 +103,16 @@ exports.deleteStudySet = async (req, res) => {
     try {
         const doc = await db.doc(`/${Constants.STUDYSETS}/${req.params.studySetId}`).get();
         if (!doc.exists) {
-            return res.status(404).json({ error: "StudySet not found" });
+            return res.status(404).json({ error: "Study set not found" });
         }
         if (doc?.data()?.userId !== req.user.uid) {
             return res.status(403).json({ error: "Unauthorized" });
         }
         await doc.ref.delete();
-        res.json({ message: "StudySet deleted successfully" });
+        res.json({ message: "Study set deleted successfully" });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: err.code });
+        res.status(500).json({ error: err.code, message: "Failed to delete study set" });
     }
 }
 
@@ -122,24 +122,24 @@ exports.addDeckToStudySet = async (req, res) => {
         const studySetId = req.params.studySetId;
         const doc = await db.doc(`/${Constants.STUDYSETS}/${req.params.studySetId}`).get();
         if (!doc.exists) {
-            return res.status(404).json({ error: "StudySet not found" });
+            return res.status(404).json({ message: "Study set not found" });
         }
         if (doc?.data()?.userId !== req.user.uid) {
-            return res.status(403).json({ error: "Unauthorized" });
+            return res.status(403).json({ message: "Unauthorized" });
         }
         const studySetData = doc.data() ?? {};
         const deckId = req.params.deckId;
         const deck = studySetData.decks.find(deck => deck.id === deckId);
         if (deck) {
-            return res.status(400).json({ error: "Deck already added" });
+            return res.status(400).json({ message: "Deck already added" });
         }
         studySetData.decks.push(deckId);
         await addDeckCardsToBox1(studySetId, deckId);
         await doc.ref.set(studySetData, { merge: true });
-        res.json({ message: "Deck added to studySet successfully" });
+        res.json({ message: "Deck added to study set successfully" });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: err.code });
+        res.status(500).json({ error: err.code, message: "Failed to add deck to study set" });
     }
 }
 
@@ -148,23 +148,23 @@ exports.removeDeckFromStudySet = async (req, res) => {
     try {
         const doc = await db.doc(`/${Constants.STUDYSETS}/${req.params.studySetId}`).get();
         if (!doc.exists) {
-            return res.status(404).json({ error: "StudySet not found" });
+            return res.status(404).json({ message: "Study set not found" });
         }
         if (doc?.data()?.userId !== req.user.uid) {
-            return res.status(403).json({ error: "Unauthorized" });
+            return res.status(403).json({ message: "Unauthorized" });
         }
         const studySetData = doc.data() ?? {};
         const deckId = req.params.deckId;
         const deck = studySetData.decks.find(deck => deck.id === deckId);
         if (!deck) {
-            return res.status(400).json({ error: "Deck not found" });
+            return res.status(400).json({ message: "Deck not found" });
         }
         studySetData.decks = studySetData.decks.filter(deck => deck.id !== deckId);
         await removeDeckCardsFromAllBoxes(req.params.studySetId, deckId);
         await doc.ref.set(studySetData, { merge: true });
-        res.json({ message: "Deck removed from studySet successfully" });
+        res.json({ message: "Deck removed from study set successfully" });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: err.code });
+        res.status(500).json({ error: err.code, message: "Failed to remove deck from study set" });
     }
 }

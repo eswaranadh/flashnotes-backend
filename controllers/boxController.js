@@ -8,9 +8,9 @@ exports.initializeAllBoxes = async function (studySetId, decks) {
     // box 3 will be empty
 
     const boxesRef = db.collection(`${Constants.STUDYSETS}/${studySetId}/${Constants.BOXES}`);
-    const box1Ref = boxesRef.doc("box1");
-    const box2Ref = boxesRef.doc("box2");
-    const box3Ref = boxesRef.doc("box3");
+    const box1Ref = boxesRef.doc(Constants.BOX1);
+    const box2Ref = boxesRef.doc(Constants.BOX2);
+    const box3Ref = boxesRef.doc(Constants.BOX3);
 
     let cardsFromDecks = [];
     const promises = decks.map(async (deckId) => {
@@ -22,21 +22,21 @@ exports.initializeAllBoxes = async function (studySetId, decks) {
 
     const box1 = {
         cards: shuffledCards,
-        id: "box1",
+        id: Constants.BOX1,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
     };
 
     const box2 = {
         cards: [],
-        id: "box2",
+        id: Constants.BOX2,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
     };
 
     const box3 = {
         cards: [],
-        id: "box3",
+        id: Constants.BOX3,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
     };
@@ -48,7 +48,7 @@ exports.initializeAllBoxes = async function (studySetId, decks) {
 
 // add cards to box1 by deckId
 exports.addDeckCardsToBox1 = async function (studySetId, deckId) {
-    const box1Ref = db.doc(`${Constants.STUDYSETS}/${studySetId}/${Constants.BOXES}/box1`);
+    const box1Ref = db.doc(`${Constants.STUDYSETS}/${studySetId}/${Constants.BOXES}/${Constants.BOX1}`);
     const box1Data = (await box1Ref.get()).data();
     const flashCardsThisDeck = (await db.collection(Constants.FLASHCARDS).where("deckId", "==", deckId).get()).docs.map(doc => doc.data()).map(item => item.id);
     const shuffledCards = flashCardsThisDeck.sort(() => Math.random() - 0.5);
@@ -62,9 +62,9 @@ exports.addDeckCardsToBox1 = async function (studySetId, deckId) {
 
 // remove deck cards from box 
 exports.removeDeckCardsFromAllBoxes = async function (studySetId, deckId) {
-    const box1Ref = db.doc(`${Constants.STUDYSETS}/${studySetId}/${Constants.BOXES}/box1`);
-    const box2Ref = db.doc(`${Constants.STUDYSETS}/${studySetId}/${Constants.BOXES}/box2`);
-    const box3Ref = db.doc(`${Constants.STUDYSETS}/${studySetId}/${Constants.BOXES}/box3`);
+    const box1Ref = db.doc(`${Constants.STUDYSETS}/${studySetId}/${Constants.BOXES}/${Constants.BOX1}`);
+    const box2Ref = db.doc(`${Constants.STUDYSETS}/${studySetId}/${Constants.BOXES}/${Constants.BOX2}`);
+    const box3Ref = db.doc(`${Constants.STUDYSETS}/${studySetId}/${Constants.BOXES}/${Constants.BOX3}`);
 
     const box1Data = (await box1Ref.get()).data();
     const box2Data = (await box2Ref.get()).data();
@@ -101,23 +101,23 @@ exports.promoteCard = async (req, res) => {
         const { timeSpentOnCard } = req.body;
         const doc = await db.doc(`/${Constants.STUDYSETS}/${req.params.studySetId}`).get();
         if (!doc.exists) {
-            return res.status(404).json({ error: "StudySet not found" });
+            return res.status(404).json({ message: "StudySet not found" });
         }
         if (doc?.data()?.userId !== req.user.uid) {
-            return res.status(403).json({ error: "Unauthorized" });
+            return res.status(403).json({ message: "Unauthorized" });
         }
 
-        const box1Ref = doc.ref.collection(Constants.BOXES).doc("box1");
-        const box2Ref = doc.ref.collection(Constants.BOXES).doc("box2");
-        const box3Ref = doc.ref.collection(Constants.BOXES).doc("box3");
+        const box1Ref = doc.ref.collection(Constants.BOXES).doc(Constants.BOX1);
+        const box2Ref = doc.ref.collection(Constants.BOXES).doc(Constants.BOX2);
+        const box3Ref = doc.ref.collection(Constants.BOXES).doc(Constants.BOX3);
 
-        if (sourceBox === "box1") {
+        if (sourceBox === Constants.BOX1) {
             // promote cardId from box1 to box2
             const box1Data = (await box1Ref.get()).data();
             const box2Data = (await box2Ref.get()).data();
             const card = box1Data.cards.find(card => card === cardId);
             if (!card) {
-                return res.status(404).json({ error: "Card not found" });
+                return res.status(404).json({ message: "Card not found" });
             }
 
             box1Data.cards = box1Data.cards.filter(card => card !== cardId);
@@ -132,13 +132,13 @@ exports.promoteCard = async (req, res) => {
                 cards: box2Data.cards,
                 updatedAt: new Date().toISOString()
             });
-        } else if (sourceBox === "box2") {
+        } else if (sourceBox === Constants.BOX2) {
             // promote cardId from box2 to box3
             const box2Data = (await box2Ref.get()).data();
             const box3Data = (await box3Ref.get()).data();
             const card = box2Data.cards.find(card => card === cardId);
             if (!card) {
-                return res.status(404).json({ error: "Card not found" });
+                return res.status(404).json({ message: "Card not found" });
             }
 
             box2Data.cards = box2Data.cards.filter(card => card !== cardId);
@@ -153,10 +153,10 @@ exports.promoteCard = async (req, res) => {
                 cards: box3Data.cards,
                 updatedAt: new Date().toISOString()
             });
-        } else if (sourceBox === "box3") {
+        } else if (sourceBox === Constants.BOX3) {
             // keep cardId in box3
         } else {
-            return res.status(400).json({ error: "Invalid sourceBox" });
+            return res.status(400).json({ message: "Invalid sourceBox" });
         }
 
 
@@ -169,11 +169,11 @@ exports.promoteCard = async (req, res) => {
             timeSpentOnCard: FieldValue.increment(timeSpentOnCard)
         });
 
-        res.json({ message: "Card promoted successfully" });
+        res.json({ message: "Card promoted successfully", hideToast: true });
     }
     catch (err) {
         console.error(err);
-        res.status(500).json({ error: err.code });
+        res.status(500).json({ error: err.code, message: 'Failed to promote card' });
     }
 }
 
@@ -183,25 +183,25 @@ exports.demoteCard = async (req, res) => {
         const { timeSpentOnCard } = req.body;
         const doc = await db.doc(`/${Constants.STUDYSETS}/${req.params.studySetId}`).get();
         if (!doc.exists) {
-            return res.status(404).json({ error: "StudySet not found" });
+            return res.status(404).json({ message: "StudySet not found" });
         }
         if (doc?.data()?.userId !== req.user.uid) {
-            return res.status(403).json({ error: "Unauthorized" });
+            return res.status(403).json({ message: "Unauthorized" });
         }
 
-        const box1Ref = doc.ref.collection(Constants.BOXES).doc("box1");
-        const box2Ref = doc.ref.collection(Constants.BOXES).doc("box2");
-        const box3Ref = doc.ref.collection(Constants.BOXES).doc("box3");
+        const box1Ref = doc.ref.collection(Constants.BOXES).doc(Constants.BOX1);
+        const box2Ref = doc.ref.collection(Constants.BOXES).doc(Constants.BOX2);
+        const box3Ref = doc.ref.collection(Constants.BOXES).doc(Constants.BOX3);
 
-        if (sourceBox === "box1") {
+        if (sourceBox === Constants.BOX1) {
             // keep cardId in box1
-        } else if (sourceBox === "box2") {
+        } else if (sourceBox === Constants.BOX2) {
             // demote cardId from box2 to box1
             const box1Data = (await box1Ref.get()).data();
             const box2Data = (await box2Ref.get()).data();
             const card = box2Data.cards.find(card => card === cardId);
             if (!card) {
-                return res.status(404).json({ error: "Card not found" });
+                return res.status(404).json({ message: "Card not found" });
             }
 
             box2Data.cards = box2Data.cards.filter(card => card !== cardId);
@@ -216,13 +216,13 @@ exports.demoteCard = async (req, res) => {
                 cards: box2Data.cards,
                 updatedAt: new Date().toISOString()
             });
-        } else if (sourceBox === "box3") {
+        } else if (sourceBox === Constants.BOX3) {
             // demote cardId from box3 to box1
             const box1Data = (await box1Ref.get()).data();
             const box3Data = (await box3Ref.get()).data();
             const card = box3Data.cards.find(card => card === cardId);
             if (!card) {
-                return res.status(404).json({ error: "Card not found" });
+                return res.status(404).json({ message: "Card not found" });
             }
 
             box3Data.cards = box3Data.cards.filter(card => card !== cardId);
@@ -239,7 +239,7 @@ exports.demoteCard = async (req, res) => {
             });
         } else {
             // invalid sourceBox
-            return res.status(400).json({ error: "Invalid sourceBox" });
+            return res.status(400).json({ message: "Invalid sourceBox" });
         }
 
         // increase demoteCount
@@ -252,11 +252,11 @@ exports.demoteCard = async (req, res) => {
             timeSpentOnCard: FieldValue.increment(timeSpentOnCard)
         });
 
-        res.json({ message: "Card demoted successfully" });
+        res.json({ message: "Card demoted successfully", hideToast: true });
     }
     catch (err) {
         console.error(err);
-        res.status(500).json({ error: err.code });
+        res.status(500).json({ error: err.code, message: 'Failed to demote card' });
     }
 }
 
@@ -266,10 +266,10 @@ exports.loadCardsFromBox = async (req, res) => {
         const { box } = req.params;
         const doc = await db.doc(`/${Constants.STUDYSETS}/${req.params.studySetId}`).get();
         if (!doc.exists) {
-            return res.status(404).json({ error: "StudySet not found" });
+            return res.status(404).json({ message: "StudySet not found" });
         }
         if (doc?.data()?.userId !== req.user.uid) {
-            return res.status(403).json({ error: "Unauthorized" });
+            return res.status(403).json({ message: "Unauthorized" });
         }
 
         const boxRef = doc.ref.collection(Constants.BOXES).doc(box);
@@ -287,6 +287,6 @@ exports.loadCardsFromBox = async (req, res) => {
     }
     catch (err) {
         console.error(err);
-        res.status(500).json({ error: err.code });
+        res.status(500).json({ error: err.code, message: 'Failed to load cards from box' });
     }
 }

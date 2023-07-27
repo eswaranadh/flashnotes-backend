@@ -12,18 +12,18 @@ exports.updateStudyPreferences = async (req, res) => {
         const docRef = db.collection(`${Constants.USERS}/${userId}/${Constants.PREFERENCES}`).doc(Constants.STUDY_PREFERENCES);
         const docData = (await docRef.get()).data();
         if (!docData) {
-            return res.status(404).json({ error: "Study preferences not found" });
+            return res.status(404).json({ message: "Study preferences not found" });
         }
 
         if (docData.userId !== userId) {
-            return res.status(403).json({ error: "Unauthorized" });
+            return res.status(403).json({ message: "Unauthorized" });
         }
         await docRef.update(studyPreferences);
         return res.status(200).json({ message: 'Study preferences updated successfully' });
     }
     catch (error) {
         console.error(error);
-        return res.status(500).json({ error: error.code });
+        return res.status(500).json({ error: error.code, message: 'Failed to update study preferences' });
     }
 }
 
@@ -36,18 +36,18 @@ exports.updateNotificationPreferences = async (req, res) => {
         const docRef = db.collection(`${Constants.USERS}/${userId}/${Constants.PREFERENCES}`).doc(Constants.NOTIFICATION_PREFERENCES);
         const docData = (await docRef.get()).data();
         if (!docData) {
-            return res.status(404).json({ error: "Notification preferences not found" });
+            return res.status(404).json({ message: "Notification preferences not found" });
         }
 
         if (docData.userId !== userId) {
-            return res.status(403).json({ error: "Unauthorized" });
+            return res.status(403).json({ message: "Unauthorized" });
         }
         await docRef.update(notificationPreferences);
         return res.status(200).json({ message: 'Notification preferences updated successfully' });
     }
     catch (error) {
         console.error(error);
-        return res.status(500).json({ error: error.code });
+        return res.status(500).json({ error: error.code, message: 'Failed to update notification preferences' });
     }
 }
 
@@ -60,11 +60,11 @@ exports.updateAccountDetails = async (req, res) => {
         const docRef = db.collection(Constants.USERS).doc(userId);
         const docData = (await docRef.get()).data();
         if (!docData) {
-            return res.status(404).json({ error: "User not found" });
+            return res.status(404).json({ message: "User not found" });
         }
 
         if (docData.userId !== userId) {
-            return res.status(403).json({ error: "Unauthorized" });
+            return res.status(403).json({ message: "Unauthorized" });
         }
 
         await docRef.update(accountDetails);
@@ -72,7 +72,7 @@ exports.updateAccountDetails = async (req, res) => {
     }
     catch (error) {
         console.error(error);
-        return res.status(500).json({ error: error.code });
+        return res.status(500).json({ error: error.code, message: 'Failed to update account details' });
     }
 }
 
@@ -85,17 +85,17 @@ exports.getStudyPreferences = async (req, res) => {
         const docRef = db.collection(`${Constants.USERS}/${userId}/${Constants.PREFERENCES}`).doc(Constants.STUDY_PREFERENCES);
         const docData = (await docRef.get()).data();
         if (!docData) {
-            return res.status(404).json({ error: "Study preferences not found" });
+            return res.status(404).json({ message: "Study preferences not found" });
         }
 
         if (docData.userId !== userId) {
-            return res.status(403).json({ error: "Unauthorized" });
+            return res.status(403).json({ message: "Unauthorized" });
         }
         return res.status(200).json(docData);
     }
     catch (error) {
         console.error(error);
-        return res.status(500).json({ error: error.code });
+        return res.status(500).json({ error: error.code, message: 'Failed to get study preferences' });
     }
 }
 
@@ -107,17 +107,17 @@ exports.getNotificationPreferences = async (req, res) => {
         const docRef = db.collection(`${Constants.USERS}/${userId}/${Constants.PREFERENCES}`).doc(Constants.NOTIFICATION_PREFERENCES);
         const docData = (await docRef.get()).data();
         if (!docData) {
-            return res.status(404).json({ error: "Notification preferences not found" });
+            return res.status(404).json({ message: "Notification preferences not found" });
         }
 
         if (docData.userId !== userId) {
-            return res.status(403).json({ error: "Unauthorized" });
+            return res.status(403).json({ message: "Unauthorized" });
         }
         return res.status(200).json(docData);
     }
     catch (error) {
         console.error(error);
-        return res.status(500).json({ error: error.code });
+        return res.status(500).json({ error: error.code, message: 'Failed to get notification preferences' });
     }
 }
 
@@ -129,16 +129,16 @@ exports.getAccountDetails = async (req, res) => {
         const docRef = db.collection(Constants.USERS).doc(userId);
         const docData = (await docRef.get()).data();
         if (!docData) {
-            return res.status(404).json({ error: "User not found" });
+            return res.status(404).json({ message: "User not found" });
         }
 
         if (docData.userId !== userId) {
-            return res.status(403).json({ error: "Unauthorized" });
+            return res.status(403).json({ message: "Unauthorized" });
         }
         return res.status(200).json(docData);
     }
     catch (error) {
         console.error(error);
-        return res.status(500).json({ error: error.code });
+        return res.status(500).json({ error: error.code, message: 'Failed to get account details' });
     }
 }

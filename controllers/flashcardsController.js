@@ -22,10 +22,10 @@ exports.createFlashcard = async (req, res) => {
       ...flashcardData,
       id: ref.id
     });
-    res.status(201).json({ id: ref.id, ...flashcardData });
+    res.status(201).json({ message: 'Flashcard created successfully' });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Something went wrong' });
+    res.status(500).json({ message: 'Failed to create flash card' });
   }
 };
 
@@ -46,7 +46,7 @@ exports.getAllFlashcards = async (req, res) => {
     res.json(flashcards);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Something went wrong' });
+    res.status(500).json({ message: 'Failed to get flashcards', error: err.code });
   }
 };
 
@@ -62,7 +62,7 @@ exports.getFlashcardById = async (req, res) => {
     res.json({ id: flashcard.id, ...flashcard.data() });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Something went wrong' });
+    res.status(500).json({ error: 'Failed to get flash card', message: err.code });
   }
 };
 
@@ -79,16 +79,16 @@ exports.updateFlashcard = async (req, res) => {
   try {
     const flashcard = await db.collection(Constants.FLASHCARDS).doc(id).get();
     if (!flashcard.exists) {
-      return res.status(404).json({ error: 'Flashcard not found' });
+      return res.status(404).json({ message: 'Flashcard not found' });
     }
     if (flashcard.data().createdBy !== req.user.uid) {
-      return res.status(403).json({ error: 'Unauthorized' });
+      return res.status(403).json({ message: 'Unauthorized' });
     }
     await db.collection(Constants.FLASHCARDS).doc(id).update(flashcardData);
     res.json({ message: 'Flashcard updated successfully' });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Something went wrong' });
+    res.status(500).json({ message: 'Failed to update flash card', error: err.code });
   }
 };
 
@@ -99,15 +99,15 @@ exports.deleteFlashcard = async (req, res) => {
   try {
     const flashcard = await db.collection(Constants.FLASHCARDS).doc(id).get();
     if (!flashcard.exists) {
-      return res.status(404).json({ error: 'Flashcard not found' });
+      return res.status(404).json({ message: 'Flashcard not found' });
     }
     if (flashcard.data().createdBy !== req.user.uid) {
-      return res.status(403).json({ error: 'Unauthorized' });
+      return res.status(403).json({ message: 'Unauthorized' });
     }
     await db.collection(Constants.FLASHCARDS).doc(id).delete();
     res.json({ message: 'Flashcard deleted' });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Something went wrong' });
+    res.status(500).json({ message: 'Failed to delete flash card', error: err.code });
   }
 };

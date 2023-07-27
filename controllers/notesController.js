@@ -15,12 +15,10 @@ exports.createNote = async (req, res) => {
     };
     const doc = db.collection(Constants.NOTES).doc()
     await doc.set({ ...noteData, id: doc.id })
-    const resNote = noteData;
-    resNote.noteId = doc.id;
-    res.json(resNote);
+    res.json({ message: "Note created successfully" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: err.code });
+    res.status(500).json({ error: err.code, message: "Failed to create note" });
   }
 };
 
@@ -45,7 +43,7 @@ exports.getAllNotes = async (req, res) => {
     res.json(notes);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: err.code });
+    res.status(500).json({ error: err.code, message: "Failed to get notes" });
   }
 };
 
@@ -54,17 +52,17 @@ exports.getNoteById = async (req, res) => {
   try {
     const doc = await db.doc(`/${Constants.NOTES}/${req.params.noteId}`).get();
     if (!doc.exists) {
-      return res.status(404).json({ error: "Note not found" });
+      return res.status(404).json({ message: "Note not found" });
     }
     if (doc.data().userId !== req.user.uid) {
-      return res.status(403).json({ error: "Unauthorized" });
+      return res.status(403).json({ message: "Unauthorized" });
     }
     const noteData = doc.data();
     noteData.noteId = doc.id;
     res.json(noteData);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: err.code });
+    res.status(500).json({ error: err.code, message: "Failed to get note" });
   }
 };
 
@@ -77,18 +75,16 @@ exports.updateNote = async (req, res) => {
     };
     const doc = await db.doc(`/${Constants.NOTES}/${req.params.noteId}`).get();
     if (!doc.exists) {
-      return res.status(404).json({ error: "Note not found" });
+      return res.status(404).json({ message: "Note not found" });
     }
     if (doc.data().userId !== req.user.uid) {
-      return res.status(403).json({ error: "Unauthorized" });
+      return res.status(403).json({ message: "Unauthorized" });
     }
     await doc.ref.update(noteData);
-    const resNote = noteData;
-    resNote.noteId = doc.id;
-    res.json(resNote);
+    res.json({ message: "Note updated successfully" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: err.code });
+    res.status(500).json({ error: err.code, message: "Failed to update note" });
   }
 };
 
@@ -97,16 +93,16 @@ exports.deleteNote = async (req, res) => {
   try {
     const doc = await db.doc(`/${Constants.NOTES}/${req.params.noteId}`).get();
     if (!doc.exists) {
-      return res.status(404).json({ error: "Note not found" });
+      return res.status(404).json({ message: "Note not found" });
     }
     if (doc.data().userId !== req.user.uid) {
-      return res.status(403).json({ error: "Unauthorized" });
+      return res.status(403).json({ message: "Unauthorized" });
     }
     await doc.ref.delete();
     res.json({ message: "Note deleted successfully" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: err.code });
+    res.status(500).json({ error: err.code, message: "Failed to delete note" });
   }
 };
 
@@ -115,10 +111,10 @@ exports.generateFlashcards = async (req, res) => {
   try {
     const noteData = (await db.doc(`/${Constants.NOTES}/${req.params.noteId}`).get()).data();
     if (!noteData) {
-      return res.status(404).json({ error: "Note not found" });
+      return res.status(404).json({ message: "Note not found" });
     }
     if (noteData.userId !== req.user.uid) {
-      return res.status(403).json({ error: "Unauthorized" });
+      return res.status(403).json({ message: "Unauthorized" });
     }
 
     const generatedFlashcards = await AI.generateFlashcardsFromNotes(noteData.body)
@@ -131,7 +127,7 @@ exports.generateFlashcards = async (req, res) => {
     }
     if (generatedFlashcards.length === 0) {
       console.log("No flashcards generated");
-      return res.status(500).json({ error: "No flashcards generated" });
+      return res.status(422).json({ message: "No flashcards generated" });
     }
 
     const deckRef = db.collection(Constants.DECKS).doc()

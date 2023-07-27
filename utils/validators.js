@@ -87,7 +87,6 @@ const validateUpdateFlashcard = [
 // Validate deck creation/update request
 const validateDeck = [
   body('title').notEmpty().withMessage('Title is required'),
-  body('description').notEmpty().withMessage('Description is required'),
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {

@@ -16,12 +16,12 @@ exports.signup = async (req, res) => {
       // check already existing user
       const authUser = await admin.auth().getUserByEmail(newUser.email)
       if (authUser) {
-        return res.status(400).json({ email: 'Email is already in use' });
+        return res.status(400).json({ message: 'Email is already in use' });
       }
     } catch (error) {
       if (error.code !== 'auth/user-not-found') {
         console.error(error);
-        return res.status(500).json({ error: error.code });
+        return res.status(500).json({ error: error.code, message: 'Failed to sign up' });
       }
     }
 
@@ -72,9 +72,9 @@ exports.signup = async (req, res) => {
   } catch (error) {
     console.error(error);
     if (error.code === 'auth/email-already-exists') {
-      return res.status(400).json({ email: 'Email is already in use' });
+      return res.status(400).json({ message: 'Email is already in use' });
     }
-    return res.status(500).json({ error: error.code });
+    return res.status(500).json({ error: error.code, message: 'Failed to sign up' });
   }
 };
 
@@ -94,7 +94,7 @@ exports.login = async (req, res) => {
     return res.json({ token });
   } catch (error) {
     console.error(error);
-    return res.status(403).json({ general: 'Wrong credentials, please try again' });
+    return res.status(403).json({ message: 'Wrong credentials, please try again' });
   }
 };
 
@@ -104,13 +104,13 @@ exports.getUser = async (req, res) => {
     const docRef = admin.firestore().collection(Constants.USERS).doc(req.user.handle);
     const doc = await docRef.get();
     if (!doc.exists) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ message: 'User not found' });
     }
     const user = doc.data();
     return res.json(user);
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ error: error.code });
+    return res.status(500).json({ error: error.code, message: 'Something went wrong' });
   }
 };
 
@@ -130,6 +130,6 @@ exports.forgotPassword = async (req, res) => {
   }
   catch (error) {
     console.error(error);
-    return res.status(500).json({ error: error.code });
+    return res.status(500).json({ error: error.code, message: 'Something went wrong' });
   }
 }
