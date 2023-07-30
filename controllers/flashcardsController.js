@@ -1,6 +1,7 @@
 const { db } = require('../utils/admin');
 const { validationResult } = require('express-validator');
 const Constants = require('../utils/constants');
+const { initializeAllBoxes } = require('./boxController');
 
 // Create a new flashcard
 exports.createFlashcard = async (req, res) => {
@@ -22,10 +23,10 @@ exports.createFlashcard = async (req, res) => {
       ...flashcardData,
       id: ref.id
     });
-    res.status(201).json({ message: 'Flashcard created successfully' });
+    res.status(201).json({ message: 'Flashcard added successfully' });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Failed to create flash card' });
+    res.status(500).json({ message: 'Failed to add flash card' });
   }
 };
 

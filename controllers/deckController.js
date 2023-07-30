@@ -1,6 +1,7 @@
 const { db } = require('../utils/admin');
 const { validationResult } = require('express-validator');
 const Constants = require('../utils/constants');
+const { initializeAllBoxes } = require('./boxController');
 
 // Create a new deck
 exports.createDeck = async (req, res) => {
@@ -100,3 +101,34 @@ exports.deleteDeck = async (req, res) => {
         res.status(500).json({ message: 'Failed to delete deck', error: err.code });
     }
 };
+
+
+// study now
+exports.studyNow = async (req, res) => {
+    const { id: deckId } = req.params
+
+    try {
+        const deckDetails = (await db.collection(Constants.DECKS).doc(deckId).get()).data()
+        if (!deckDetails) return res.status(404).json({ message: 'Deck not found' })
+        if (deckDetails?.studySetId) return res.status(400).json({ message: 'Deck already in study set', hideToast: true })
+        const studySetData = {
+            title: deckDetails.title,
+            createdAt: new Date().toISOString(),
+            userId: deckDetails.createdBy,
+            decks: [deckId]
+        };
+        const ref = db.collection(Constants.STUDYSETS).doc()
+        await ref.set({
+            ...studySetData,
+            id: ref.id
+        });
+        await initializeAllBoxes(ref.id, studySetData.decks)
+
+        await db.collection(Constants.DECKS).doc(deckId).set({ studySetId: ref.id }, { merge: true })
+
+        res.status(201).json({ message: 'Study set created successfully', hideToast: true, studySetId: ref.id });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Failed to create study set', error: error.code });
+    }
+}

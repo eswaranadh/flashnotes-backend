@@ -19,4 +19,7 @@ router.put('/:id', [auth, validateDeck], deckController.updateDeck);
 // DELETE an existing flashcard for a user
 router.delete('/:id', auth, deckController.deleteDeck);
 
+// POST Study now
+router.post('/:id/study-now', auth, deckController.studyNow);
+
 module.exports = router;

@@ -10,6 +10,8 @@ const deckRoutes = require('./routes/deckRoutes');
 const studySetsRoutes = require('./routes/studySetsRoutes');
 const boxRoutes = require('./routes/boxRoutes');
 const accountRoutes = require('./routes/accountRoutes');
+const Triggers = require('./services/triggers');
+const Constants = require('./utils/constants');
 
 const app = express();
 
@@ -37,3 +39,9 @@ app.use((err, req, res, next) => {
 });
 
 exports.api = functions.https.onRequest(app);
+
+exports.addFlashCardTrigger = functions.firestore
+  .document(`${Constants.FLASHCARDS}/{flashcardId}`)
+  .onCreate((snap, context) => {
+    Triggers.addFlashCard(snap, context)
+  })
