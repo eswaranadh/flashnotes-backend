@@ -43,5 +43,11 @@ exports.api = functions.https.onRequest(app);
 exports.addFlashCardTrigger = functions.firestore
   .document(`${Constants.FLASHCARDS}/{flashcardId}`)
   .onCreate((snap, context) => {
-    Triggers.addFlashCard(snap, context)
+    Triggers.addFlashCardToBox(snap, context)
+  })
+
+exports.deleteFlashCardTrigger = functions.firestore
+  .document(`${Constants.FLASHCARDS}/{flashcardId}`)
+  .onDelete((snap, context) => {
+    Triggers.removeFlashCardFromBox(snap, context)
   })
