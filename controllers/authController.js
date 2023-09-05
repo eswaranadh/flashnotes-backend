@@ -1,4 +1,5 @@
 const Email = require('../services/email');
+const Notification = require('../services/notification');
 const { admin } = require('../utils/admin');
 const Constants = require('../utils/constants');
 const { defaultUserPreferences } = require('../utils/helpers');
@@ -68,6 +69,7 @@ exports.signup = async (req, res) => {
     const token = await admin.auth().createCustomToken(userRecord.uid);
 
     // Return response
+    await Notification.sendWelcomeEmail(user);
     return res.status(201).json({ token });
   } catch (error) {
     console.error(error);
