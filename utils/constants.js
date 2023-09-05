@@ -12,6 +12,10 @@ class Constants {
     static BOX3 = 'box3';
     static STUDY_PREFERENCES = 'study-preferences';
     static NOTIFICATION_PREFERENCES = 'notification-preferences';
+
+    static DYNAMIC_TEMPLATES = {
+        WELCOME_EMAIL: 'd-ad90adb8d70544c89af2b1bb5dae46fb'
+    }
 }
 
 module.exports = Constants;
