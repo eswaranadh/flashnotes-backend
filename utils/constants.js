@@ -14,7 +14,12 @@ class Constants {
     static NOTIFICATION_PREFERENCES = 'notification-preferences';
 
     static DYNAMIC_TEMPLATES = {
-        WELCOME_EMAIL: 'd-ad90adb8d70544c89af2b1bb5dae46fb'
+        WELCOME_EMAIL: 'd-ad90adb8d70544c89af2b1bb5dae46fb',
+        REMIND_ABOUT_FLASHCARDS: 'd-bc7fb111995e4c37844f506eeafa552d'
+    }
+
+    static CRON_EXPRESSIONS = {
+        MORNING7AM: '0 7 * * *'
     }
 }
 

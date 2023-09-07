@@ -2,7 +2,7 @@ const { db, admin } = require("../utils/admin");
 const Constants = require("../utils/constants");
 
 // add cards to box
-exports.initializeAllBoxes = async function (studySetId, decks) {
+exports.initializeAllBoxes = async function (studySetId, decks, userId) {
     // box 1 will be initialized with all cards
     // box 2 will be empty
     // box 3 will be empty
@@ -24,21 +24,29 @@ exports.initializeAllBoxes = async function (studySetId, decks) {
         cards: shuffledCards,
         id: Constants.BOX1,
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
+        userId,
+        lastRemindedDate: new Date().toISOString(),
+        studySetId
     };
 
     const box2 = {
         cards: [],
         id: Constants.BOX2,
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
+        userId,
+        lastRemindedDate: new Date().toISOString(),
+        studySetId
     };
 
     const box3 = {
         cards: [],
         id: Constants.BOX3,
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
+        lastRemindedDate: new Date().toISOString(),
+        studySetId
     };
 
     box1Ref.set(box1);

@@ -122,7 +122,7 @@ exports.studyNow = async (req, res) => {
             ...studySetData,
             id: ref.id
         });
-        await initializeAllBoxes(ref.id, studySetData.decks)
+        await initializeAllBoxes(ref.id, studySetData.decks, studySetData.userId)
 
         await db.collection(Constants.DECKS).doc(deckId).set({ studySetId: ref.id }, { merge: true })
 

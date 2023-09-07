@@ -12,6 +12,8 @@ const boxRoutes = require('./routes/boxRoutes');
 const accountRoutes = require('./routes/accountRoutes');
 const Triggers = require('./services/triggers');
 const Constants = require('./utils/constants');
+const Schedulers = require('./services/schedulers');
+const schedulerTimezone = require('./config/backendconfig.json').schedulerTimezone;
 
 const app = express();
 
@@ -51,3 +53,9 @@ exports.deleteFlashCardTrigger = functions.firestore
   .onDelete((snap, context) => {
     Triggers.removeFlashCardFromBox(snap, context)
   })
+
+exports.schedulerAtMorning7 = functions.pubsub.schedule(Constants.CRON_EXPRESSIONS.MORNING7AM)
+  .timeZone(schedulerTimezone)
+  .onRun(() => {
+    Schedulers.checkDueFlashCards()
+  });

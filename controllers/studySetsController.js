@@ -13,7 +13,7 @@ exports.createStudySet = async (req, res) => {
         };
         const doc = db.collection(Constants.STUDYSETS).doc()
         await doc.set({ ...studySetData, id: doc.id })
-        await initializeAllBoxes(doc.id, studySetData.decks)
+        await initializeAllBoxes(doc.id, studySetData.decks, studySetData.userId)
         res.json({ message: "Study set created successfully" });
     } catch (err) {
         console.error(err);

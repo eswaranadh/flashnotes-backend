@@ -21,6 +21,7 @@ class Email {
         }
         try {
             await sgMail.send(msg)
+            console.log('Email sent successfully to: ', to, cc, bcc, ' with subject: ', subject)
         } catch (error) {
             console.error(error)
             if (error.response) {
@@ -52,6 +53,7 @@ class Email {
         }
         try {
             await sgMail.send(msg)
+            console.log('Email sent successfully to: ', to, cc, bcc, ' with template_id: ', template_id, ' and dynamic_template_data: ', dynamic_template_data)
         } catch (error) {
             console.error(error)
             if (error.response) {
